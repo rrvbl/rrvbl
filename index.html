@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Volleyball Database</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Volleyball DB</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      background: #f9f9f9;
+      background-color: #f9f9f9;
     }
     header {
       background-color: #333;
-      color: white;
       padding: 1em;
     }
     nav {
@@ -23,8 +23,8 @@
       background: none;
       color: white;
       border: none;
-      cursor: pointer;
       font-size: 1rem;
+      cursor: pointer;
     }
     nav button:hover {
       text-decoration: underline;
@@ -33,10 +33,17 @@
       padding: 2em;
     }
     .section {
-      margin-bottom: 2em;
-    }
-    .hidden {
       display: none;
+    }
+    .section.active {
+      display: block;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 1em;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 1em;
     }
   </style>
 </head>
@@ -53,34 +60,37 @@
   </header>
 
   <div class="container">
-    <section id="home" class="section">
+    <section id="home" class="section active">
       <h2>🏐 Home</h2>
-      <div id="latest-players">Loading latest players...</div>
-      <div id="latest-transfers">Loading latest transfers...</div>
-      <div id="match-scores">Loading match scores...</div>
+      <h3>Newly Added Players</h3>
+      <div id="latest-players">Loading...</div>
+      <h3>Recent Transfers</h3>
+      <div id="latest-transfers">(Coming soon)</div>
+      <h3>Recent Match Scores</h3>
+      <div id="match-scores">(Coming soon)</div>
     </section>
 
-    <section id="players" class="section hidden">
+    <section id="players" class="section">
       <h2>🏃 Players</h2>
-      <!-- Will list all players here -->
+      <!-- Player listing will go here -->
     </section>
 
-    <section id="search" class="section hidden">
+    <section id="search" class="section">
       <h2>🔍 Search</h2>
-      <!-- Search functionality -->
+      <!-- Search content -->
     </section>
 
-    <section id="teams" class="section hidden">
+    <section id="teams" class="section">
       <h2>👥 Teams</h2>
-      <!-- Team list here -->
+      <!-- Teams content -->
     </section>
 
-    <section id="transfers" class="section hidden">
+    <section id="transfers" class="section">
       <h2>🔁 Transfers</h2>
-      <!-- Transfers list here -->
+      <!-- Transfers content -->
     </section>
 
-    <section id="add" class="section hidden">
+    <section id="add" class="section">
       <h2>➕ Add New Item</h2>
       <select id="add-select" onchange="showAddForm()">
         <option value="">-- Select what to add --</option>
@@ -88,26 +98,69 @@
         <option value="add-team">Add Team</option>
         <option value="add-transfer">Add Transfer</option>
       </select>
-
-      <div id="add-player" class="hidden">[Player form here]</div>
-      <div id="add-team" class="hidden">[Team form here]</div>
-      <div id="add-transfer" class="hidden">[Transfer form here]</div>
+      <div id="add-player" class="hidden">[Player form will go here]</div>
+      <div id="add-team" class="hidden">[Team form will go here]</div>
+      <div id="add-transfer" class="hidden">[Transfer form will go here]</div>
     </section>
   </div>
 
   <script>
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(sec => sec.classList.add('hidden'));
-      document.getElementById(sectionId).classList.remove('hidden');
+    // 🔐 Replace with your actual Supabase project values
+    const SUPABASE_URL = 'https://kkekhqkjucnzvlmsbest.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZWtocWtqdWNuenZsbXNiZXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDE3NzIsImV4cCI6MjA2NzQ3Nzc3Mn0.ljdgW8Vawn01lozpRdD0YFKczExfAfO5-TDGdkNvAMQ';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Show only selected section
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => {
+        sec.classList.remove('active');
+      });
+      document.getElementById(id).classList.add('active');
     }
 
+    // Show add forms dynamically
     function showAddForm() {
-      const value = document.getElementById("add-select").value;
-      document.querySelectorAll('#add > div').forEach(div => div.classList.add('hidden'));
-      if (value) {
-        document.getElementById(value).classList.remove('hidden');
-      }
+      const val = document.getElementById('add-select').value;
+      document.querySelectorAll('#add > div').forEach(div => {
+        if (div.id.startsWith('add-')) div.classList.add('hidden');
+      });
+      if (val) document.getElementById(val).classList.remove('hidden');
     }
+
+    // Load latest players
+    async function loadLatestPlayers() {
+      const container = document.getElementById('latest-players');
+      const { data, error } = await supabase
+        .from('players')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) {
+        container.innerHTML = `<div class="card">Failed to load players.</div>`;
+        console.error(error);
+        return;
+      }
+
+      if (data.length === 0) {
+        container.innerHTML = `<div class="card">No players found.</div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      data.forEach(player => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <strong>${player.name}</strong><br>
+          ${player.position} (${player.gender})
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Initial load
+    loadLatestPlayers();
   </script>
 </body>
 </html>
