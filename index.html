@@ -166,10 +166,10 @@
   </div>
 
   <script>
-    // Supabase credentials
+    // Correct Supabase initialization
     const SUPABASE_URL = 'https://kkekhqkjucnzvlmsbest.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZWtocWtqdWNuenZsbXNiZXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDE3NzIsImV4cCI6MjA2NzQ3Nzc3Mn0.ljdgW8Vawn01lozpRdD0YFKczExfAfO5-TDGdkNvAMQ';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Switch visible section
     function showSection(id) {
@@ -243,7 +243,6 @@
         return null;
       }
 
-      // Get public URL
       const { data } = supabase.storage.from('player-images').getPublicUrl(filePath);
       return data.publicUrl;
     }
@@ -271,7 +270,6 @@
         }
       }
 
-      // Insert player record
       const { error } = await supabase.from('players').insert([
         { name, gender, position, image_url }
       ]);
