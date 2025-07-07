@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Volleyball DB</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -44,9 +44,26 @@
       padding: 1em;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       margin-bottom: 1em;
+      display: flex;
+      align-items: center;
+      gap: 1em;
+    }
+    .card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 1px solid #ddd;
     }
     .hidden {
       display: none;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5em;
+    }
+    input[type="file"] {
+      margin-top: 0.5em;
     }
   </style>
 </head>
@@ -75,22 +92,18 @@
 
     <section id="players" class="section">
       <h2>🏃 Players</h2>
-      <!-- Player listing will go here -->
     </section>
 
     <section id="search" class="section">
       <h2>🔍 Search</h2>
-      <!-- Search content -->
     </section>
 
     <section id="teams" class="section">
       <h2>👥 Teams</h2>
-      <!-- Teams content -->
     </section>
 
     <section id="transfers" class="section">
       <h2>🔁 Transfers</h2>
-      <!-- Transfers content -->
     </section>
 
     <section id="add" class="section">
@@ -106,18 +119,23 @@
       <div id="add-player" class="hidden">
         <h3>Add Player</h3>
         <form id="player-form">
-          <label>Name:<br><input type="text" id="player-name" required /></label><br><br>
+          <label>
+            Name:<br />
+            <input type="text" id="player-name" required />
+          </label>
 
-          <label>Gender:<br>
+          <label>
+            Gender:<br />
             <select id="player-gender" required>
               <option value="">-- Select Gender --</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
-          </label><br><br>
+          </label>
 
-          <label>Position:<br>
+          <label>
+            Position:<br />
             <select id="player-position" required>
               <option value="">-- Select Position --</option>
               <option value="wing spiker">Wing Spiker</option>
@@ -127,11 +145,12 @@
               <option value="defensive specialist">Defensive Specialist</option>
               <option value="all rounder">All Rounder</option>
             </select>
-          </label><br><br>
+          </label>
 
-          <label>Image URL (optional):<br>
-            <input type="text" id="player-image" placeholder="https://..." />
-          </label><br><br>
+          <label>
+            Upload Image (optional):<br />
+            <input type="file" id="player-image-file" accept="image/*" />
+          </label>
 
           <button type="submit">Add Player</button>
           <div id="player-form-status" style="margin-top: 1em;"></div>
@@ -147,18 +166,18 @@
   </div>
 
   <script>
-    // 🔐 Supabase credentials
+    // Supabase credentials
     const SUPABASE_URL = 'https://kkekhqkjucnzvlmsbest.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZWtocWtqdWNuenZsbXNiZXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDE3NzIsImV4cCI6MjA2NzQ3Nzc3Mn0.ljdgW8Vawn01lozpRdD0YFKczExfAfO5-TDGdkNvAMQ';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Section switcher
+    // Switch visible section
     function showSection(id) {
       document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
 
-    // Dropdown logic for add form
+    // Show add form based on select
     function showAddForm() {
       const val = document.getElementById('add-select').value;
       document.querySelectorAll('#add > div').forEach(div => {
@@ -167,7 +186,7 @@
       if (val) document.getElementById(val).classList.remove('hidden');
     }
 
-    // Fetch and display latest players
+    // Load latest players
     async function loadLatestPlayers() {
       const container = document.getElementById('latest-players');
       const { data, error } = await supabase
@@ -191,26 +210,68 @@
       data.forEach(player => {
         const card = document.createElement('div');
         card.className = 'card';
+
+        const imgHtml = player.image_url
+          ? `<img src="${player.image_url}" alt="${player.name}">`
+          : `<div style="width:60px;height:60px;background:#ccc;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#666;">No Image</div>`;
+
         card.innerHTML = `
-          <strong>${player.name}</strong><br>
-          ${player.position} (${player.gender})
+          ${imgHtml}
+          <div>
+            <strong>${player.name}</strong><br>
+            ${player.position} (${player.gender})
+          </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // Handle Add Player form
+    // Upload image file to Supabase Storage and return public URL
+    async function uploadPlayerImage(file) {
+      if (!file) return null;
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `player-images/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('player-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Image upload error:', uploadError);
+        return null;
+      }
+
+      // Get public URL
+      const { data } = supabase.storage.from('player-images').getPublicUrl(filePath);
+      return data.publicUrl;
+    }
+
+    // Handle Add Player form submit
     document.getElementById('player-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const name = document.getElementById('player-name').value.trim();
       const gender = document.getElementById('player-gender').value;
       const position = document.getElementById('player-position').value;
-      const image_url = document.getElementById('player-image').value.trim() || null;
+      const fileInput = document.getElementById('player-image-file');
+      const file = fileInput.files[0] || null;
 
       const status = document.getElementById('player-form-status');
-      status.textContent = 'Adding player...';
+      status.textContent = 'Uploading image and adding player...';
 
+      // Upload image if present
+      let image_url = null;
+      if (file) {
+        image_url = await uploadPlayerImage(file);
+        if (!image_url) {
+          status.textContent = '❌ Image upload failed. Try again.';
+          return;
+        }
+      }
+
+      // Insert player record
       const { error } = await supabase.from('players').insert([
         { name, gender, position, image_url }
       ]);
