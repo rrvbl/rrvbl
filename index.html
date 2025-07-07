@@ -1,125 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Volleyball Database</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Volleyball Database</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background-color: #333;
+      color: white;
+      padding: 1em;
+    }
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+    nav button {
+      background: none;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    nav button:hover {
+      text-decoration: underline;
+    }
+    .container {
+      padding: 2em;
+    }
+    .section {
+      margin-bottom: 2em;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <button id="home-btn">Home</button>
-            <button id="players-btn">Players</button>
-            <button id="teams-btn">Teams</button>
-            <button id="transfers-btn">Transfers</button>
-            <button id="matches-btn">Matches</button>
-            <div class="dropdown">
-                <button class="dropbtn">Add New Item</button>
-                <div class="dropdown-content">
-                    <button id="add-player-btn">Add Player</button>
-                    <button id="add-team-btn">Add Team</button>
-                    <button id="add-match-btn">Add Match Score</button>
-                    <button id="transfer-player-btn">Transfer Player</button>
-                </div>
-            </div>
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="Search players or teams...">
-                <button id="search-btn">Search</button>
-            </div>
-        </nav>
-    </header>
+  <header>
+    <nav>
+      <button onclick="showSection('home')">Home</button>
+      <button onclick="showSection('players')">Players</button>
+      <button onclick="showSection('search')">Search</button>
+      <button onclick="showSection('teams')">Teams</button>
+      <button onclick="showSection('transfers')">Transfers</button>
+      <button onclick="showSection('add')">Add New Item</button>
+    </nav>
+  </header>
 
-    <main>
-        <section id="home-section" class="active-section">
-            <h2>Welcome to the Volleyball Database!</h2>
-            <div class="home-content">
-                <div class="card">
-                    <h3>5 Newly Added Players</h3>
-                    <ul id="new-players-list">
-                        </ul>
-                </div>
-                <div class="card">
-                    <h3>Recent Player Transfers</h3>
-                    <ul id="recent-transfers-list">
-                        </ul>
-                </div>
-                <div class="card">
-                    <h3>Recent League Match Scores</h3>
-                    <ul id="recent-matches-list">
-                        </ul>
-                </div>
-            </div>
-        </section>
+  <div class="container">
+    <section id="home" class="section">
+      <h2>🏐 Home</h2>
+      <div id="latest-players">Loading latest players...</div>
+      <div id="latest-transfers">Loading latest transfers...</div>
+      <div id="match-scores">Loading match scores...</div>
+    </section>
 
-        <section id="players-section" class="hidden-section">
-            <h2>All Players</h2>
-            <input type="text" id="filter-players-input" placeholder="Filter players by name or team...">
-            <div id="players-list-container" class="grid-container">
-                </div>
-        </section>
+    <section id="players" class="section hidden">
+      <h2>🏃 Players</h2>
+      <!-- Will list all players here -->
+    </section>
 
-        <section id="teams-section" class="hidden-section">
-            <h2>All Teams</h2>
-            <input type="text" id="filter-teams-input" placeholder="Filter teams by name or league...">
-            <div id="teams-list-container" class="grid-container">
-                </div>
-        </section>
+    <section id="search" class="section hidden">
+      <h2>🔍 Search</h2>
+      <!-- Search functionality -->
+    </section>
 
-        <section id="transfers-section" class="hidden-section">
-            <h2>All Player Transfers</h2>
-            <ul id="all-transfers-list">
-                </ul>
-        </section>
+    <section id="teams" class="section hidden">
+      <h2>👥 Teams</h2>
+      <!-- Team list here -->
+    </section>
 
-        <section id="matches-section" class="hidden-section">
-            <h2>All League Match Scores</h2>
-            <ul id="all-matches-list">
-                </ul>
-        </section>
+    <section id="transfers" class="section hidden">
+      <h2>🔁 Transfers</h2>
+      <!-- Transfers list here -->
+    </section>
 
-        <section id="add-new-item-section" class="hidden-section form-section">
-            <h2>Add New Item</h2>
-            <div id="add-forms-container">
-                </div>
-        </section>
+    <section id="add" class="section hidden">
+      <h2>➕ Add New Item</h2>
+      <select id="add-select" onchange="showAddForm()">
+        <option value="">-- Select what to add --</option>
+        <option value="add-player">Add Player</option>
+        <option value="add-team">Add Team</option>
+        <option value="add-transfer">Add Transfer</option>
+      </select>
 
-        <section id="player-details-section" class="hidden-section details-section">
-            <button class="back-button" onclick="showSection('players')">Back to Players</button>
-            <h2 id="player-details-name"></h2>
-            <div class="details-content">
-                <img id="player-details-image" src="" alt="Player Image" class="details-image">
-                <p><strong>Gender:</strong> <span id="player-details-gender"></span></p>
-                <p><strong>Position:</strong> <span id="player-details-position"></span></p>
-                <p><strong>Team:</strong> <span id="player-details-team"></span></p>
-                </div>
-        </section>
+      <div id="add-player" class="hidden">[Player form here]</div>
+      <div id="add-team" class="hidden">[Team form here]</div>
+      <div id="add-transfer" class="hidden">[Transfer form here]</div>
+    </section>
+  </div>
 
-        <section id="team-details-section" class="hidden-section details-section">
-            <button class="back-button" onclick="showSection('teams')">Back to Teams</button>
-            <h2 id="team-details-name"></h2>
-            <div class="details-content">
-                <img id="team-details-logo" src="" alt="Team Logo" class="details-image">
-                <p><strong>League:</strong> <span id="team-details-league"></span></p>
-                <h3>Members:</h3>
-                <ul id="team-members-list">
-                    </ul>
-                </div>
-        </section>
+  <script>
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(sectionId).classList.remove('hidden');
+    }
 
-        <section id="search-results-section" class="hidden-section">
-            <h2>Search Results</h2>
-            <div id="search-results-container">
-                <h3>Players</h3>
-                <ul id="search-players-list"></ul>
-                <h3>Teams</h3>
-                <ul id="search-teams-list"></ul>
-            </div>
-        </section>
-
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
+    function showAddForm() {
+      const value = document.getElementById("add-select").value;
+      document.querySelectorAll('#add > div').forEach(div => div.classList.add('hidden'));
+      if (value) {
+        document.getElementById(value).classList.remove('hidden');
+      }
+    }
+  </script>
 </body>
 </html>
