@@ -157,19 +157,52 @@
         </form>
       </div>
 
-      <!-- Add Team Placeholder -->
-      <div id="add-team" class="hidden">[Team form will go here]</div>
+      <!-- Add Team Form -->
+      <div id="add-team" class="hidden">
+        <h3>Add Team</h3>
+        <form id="team-form">
+          <label>
+            Team Name:<br />
+            <input type="text" id="team-name" required />
+          </label>
+
+          <label>
+            League:<br />
+            <select id="team-league" required>
+              <option value="">-- Select League --</option>
+              <option value="2v2">2v2</option>
+              <option value="4v4">4v4</option>
+              <option value="5v5">5v5</option>
+            </select>
+          </label>
+
+          <label>
+            Upload Logo (optional):<br />
+            <input type="file" id="team-logo-file" accept="image/*" />
+          </label>
+
+          <label>
+            Members:<br />
+            <select id="team-members" multiple size="6" style="width: 100%;"></select>
+          </label>
+
+          <button type="submit">Add Team</button>
+          <div id="team-form-status" style="margin-top: 1em;"></div>
+        </form>
+      </div>
 
       <!-- Add Transfer Placeholder -->
-      <div id="add-transfer" class="hidden">[Transfer form will go here]</div>
+      <div id="add-transfer" class="hidden">
+        <h3>Add Transfer (Coming soon)</h3>
+      </div>
     </section>
   </div>
 
   <script>
     const SUPABASE_URL = 'https://kkekhqkjucnzvlmsbest.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZWtocWtqdWNuenZsbXNiZXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDE3NzIsImV4cCI6MjA2NzQ3Nzc3Mn0.ljdgW8Vawn01lozpRdD0YFKczExfAfO5-TDGdkNvAMQ';
-    
-    // Use the correct global 'supabase' exposed by the CDN:
+
+    // Correct Supabase client initialization
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function showSection(id) {
@@ -185,6 +218,7 @@
       if (val) document.getElementById(val).classList.remove('hidden');
     }
 
+    // Load latest 5 players on homepage
     async function loadLatestPlayers() {
       const container = document.getElementById('latest-players');
       const { data, error } = await supabase
@@ -224,6 +258,7 @@
       });
     }
 
+    // Upload image helper for player
     async function uploadPlayerImage(file) {
       if (!file) return null;
 
@@ -244,6 +279,7 @@
       return data.publicUrl;
     }
 
+    // Player form submit handler
     document.getElementById('player-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -279,6 +315,122 @@
       }
     });
 
+    // Load players into multi-select for Add Team form
+    async function loadPlayersForTeam() {
+      const select = document.getElementById('team-members');
+      select.innerHTML = '<option disabled>Loading players...</option>';
+
+      const { data, error } = await supabase
+        .from('players')
+        .select('id, name')
+        .order('name');
+
+      if (error) {
+        select.innerHTML = '<option disabled>Error loading players</option>';
+        console.error(error);
+        return;
+      }
+
+      if (data.length === 0) {
+        select.innerHTML = '<option disabled>No players found</option>';
+        return;
+      }
+
+      select.innerHTML = '';
+      data.forEach(player => {
+        const opt = document.createElement('option');
+        opt.value = player.id;
+        opt.textContent = player.name;
+        select.appendChild(opt);
+      });
+    }
+
+    // Upload team logo helper
+    async function uploadTeamLogo(file) {
+      if (!file) return null;
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-team.${fileExt}`;
+      const filePath = `team-logos/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('team-logos')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Team logo upload error:', uploadError);
+        return null;
+      }
+
+      const { data } = supabase.storage.from('team-logos').getPublicUrl(filePath);
+      return data.publicUrl;
+    }
+
+    // Team form submit handler
+    document.getElementById('team-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('team-name').value.trim();
+      const league = document.getElementById('team-league').value;
+      const fileInput = document.getElementById('team-logo-file');
+      const file = fileInput.files[0] || null;
+      const status = document.getElementById('team-form-status');
+      status.textContent = 'Uploading logo and adding team...';
+
+      let logo_url = null;
+      if (file) {
+        logo_url = await uploadTeamLogo(file);
+        if (!logo_url) {
+          status.textContent = '❌ Logo upload failed. Try again.';
+          return;
+        }
+      }
+
+      const { data: teamData, error: teamError } = await supabase
+        .from('teams')
+        .insert([{ name, league, logo_url }])
+        .select()
+        .single();
+
+      if (teamError) {
+        status.textContent = '❌ Failed to add team.';
+        console.error(teamError);
+        return;
+      }
+
+      const membersSelect = document.getElementById('team-members');
+      const selectedMemberIds = Array.from(membersSelect.selectedOptions).map(opt => opt.value);
+
+      if (selectedMemberIds.length > 0) {
+        const insertRelations = selectedMemberIds.map(player_id => ({
+          player_id,
+          team_id: teamData.id,
+        }));
+
+        const { error: relError } = await supabase
+          .from('player_teams')
+          .insert(insertRelations);
+
+        if (relError) {
+          status.textContent = '⚠️ Team added but failed to add members.';
+          console.error(relError);
+          return;
+        }
+      }
+
+      status.textContent = '✅ Team added successfully!';
+      document.getElementById('team-form').reset();
+      loadPlayersForTeam();
+    });
+
+    // Load players list when Add Team form is shown
+    document.getElementById('add-select').addEventListener('change', () => {
+      if (document.getElementById('add-select').value === 'add-team') {
+        loadPlayersForTeam();
+      }
+    });
+
+    // Initial load
     loadLatestPlayers();
   </script>
 </body>
