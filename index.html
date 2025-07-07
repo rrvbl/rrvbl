@@ -166,18 +166,17 @@
   </div>
 
   <script>
-    // Correct Supabase initialization
     const SUPABASE_URL = 'https://kkekhqkjucnzvlmsbest.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZWtocWtqdWNuenZsbXNiZXN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MDE3NzIsImV4cCI6MjA2NzQ3Nzc3Mn0.ljdgW8Vawn01lozpRdD0YFKczExfAfO5-TDGdkNvAMQ';
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Use the correct global 'supabase' exposed by the CDN:
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Switch visible section
     function showSection(id) {
       document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
 
-    // Show add form based on select
     function showAddForm() {
       const val = document.getElementById('add-select').value;
       document.querySelectorAll('#add > div').forEach(div => {
@@ -186,7 +185,6 @@
       if (val) document.getElementById(val).classList.remove('hidden');
     }
 
-    // Load latest players
     async function loadLatestPlayers() {
       const container = document.getElementById('latest-players');
       const { data, error } = await supabase
@@ -201,7 +199,7 @@
         return;
       }
 
-      if (data.length === 0) {
+      if (!data || data.length === 0) {
         container.innerHTML = `<div class="card">No players found.</div>`;
         return;
       }
@@ -226,7 +224,6 @@
       });
     }
 
-    // Upload image file to Supabase Storage and return public URL
     async function uploadPlayerImage(file) {
       if (!file) return null;
 
@@ -247,7 +244,6 @@
       return data.publicUrl;
     }
 
-    // Handle Add Player form submit
     document.getElementById('player-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -260,7 +256,6 @@
       const status = document.getElementById('player-form-status');
       status.textContent = 'Uploading image and adding player...';
 
-      // Upload image if present
       let image_url = null;
       if (file) {
         image_url = await uploadPlayerImage(file);
@@ -284,7 +279,6 @@
       }
     });
 
-    // Initial load
     loadLatestPlayers();
   </script>
 </body>
