@@ -1,4 +1,4 @@
-/* 🌞 Volleyball Themed Styles */
+/* Volleyball Themed Styles */
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -35,11 +35,15 @@ nav button:hover {
   display: none;
 }
 
-h2, h3 {
+h2 {
   color: #f57c00;
   border-bottom: 2px solid #f57c00;
   padding-bottom: 0.3rem;
   margin-bottom: 1rem;
+}
+
+h4 {
+  margin-top: 1rem;
 }
 
 .card {
@@ -82,16 +86,13 @@ form button:hover {
   background-color: #ef6c00;
 }
 
-#adminPanel {
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 2px dashed #f57c00;
-  background: #fff3e0;
-}
-
 footer {
   text-align: center;
   padding: 2rem;
   color: #aaa;
   font-size: 0.9rem;
+}
+
+label {
+  font-weight: 600;
 }
