@@ -1,4 +1,4 @@
-/* 🌞 Volleyball Themed Styles */
+/* Volleyball Themed Styles */
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -88,21 +88,12 @@ form button:hover {
   background: #fff3e0;
 }
 
-footer {
-  text-align: center;
-  padding: 2rem;
-  color: #aaa;
-  font-size: 0.9rem;
-}
-
 /* Modal styles */
 .modal {
   position: fixed;
   z-index: 10;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
   overflow: auto;
   background-color: rgba(0,0,0,0.5);
   display: flex;
@@ -120,10 +111,6 @@ footer {
   position: relative;
 }
 
-.modal-content h2 {
-  color: #f57c00;
-}
-
 .close {
   position: absolute;
   top: 0.5rem;
@@ -131,4 +118,11 @@ footer {
   font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: #aaa;
+  font-size: 0.9rem;
 }
