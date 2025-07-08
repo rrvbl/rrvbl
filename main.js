@@ -1,16 +1,11 @@
-// Supabase Setup
+// Supabase client setup
 const SUPABASE_URL = 'https://ccwajatpnsaxfwxkjxpb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjd2FqYXRwbnNheGZ3eGtqeHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5OTk4MDcsImV4cCI6MjA2NzU3NTgwN30.hyUE2bcZajV3orOJ-PvMZ81J_5OH8JNgYLbbWUxOkkk';
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let isAdmin = false;
-const ADMIN_PASS = 'volleyadmin';
-
-// Navigation
 function navigate(pageId) {
   document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
   document.getElementById(pageId).classList.remove('hidden');
-
   if (pageId === 'add') loadTeamsIntoForms();
   if (pageId === 'players') renderPlayersPage();
   if (pageId === 'teams') renderTeamsPage();
@@ -18,77 +13,111 @@ function navigate(pageId) {
   if (pageId === 'matches') renderMatchesPage();
 }
 
-// Toggle Admin Login panel
-function toggleAdminLogin() {
-  const panel = document.getElementById('adminLoginPanel');
-  if (panel) panel.classList.toggle('hidden');
-}
-
-// Load teams into select dropdowns grouped by league
+// Load teams into various dropdowns by league
 async function loadTeamsIntoForms() {
-  const { data: teams, error } = await client.from('teams').select('*').order('name');
-  if (error) {
-    alert('Error loading teams: ' + error.message);
-    return;
-  }
+  const { data: teams } = await supabase.from('teams').select('*').order('name');
 
-  // Clear and add default options
-  ['team2v2', 'team4v4', 'team5v5', 'transferNewTeam', 'matchTeamA', 'matchTeamB', 'matchWinner'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    sel.innerHTML = '';
-    if (id === 'transferNewTeam' || id === 'matchTeamA' || id === 'matchTeamB' || id === 'matchWinner') {
-      const opt = document.createElement('option');
-      opt.value = '';
-      opt.textContent = '-- Select Team --';
-      sel.appendChild(opt);
-    } else {
-      const opt = document.createElement('option');
-      opt.value = '';
-      opt.textContent = '-- None --';
-      sel.appendChild(opt);
-    }
+  const team2v2 = document.getElementById('team2v2');
+  const team4v4 = document.getElementById('team4v4');
+  const team5v5 = document.getElementById('team5v5');
+  const transferNewTeam = document.getElementById('transferNewTeam');
+  const matchTeamA = document.getElementById('matchTeamA');
+  const matchTeamB = document.getElementById('matchTeamB');
+  const matchWinner = document.getElementById('matchWinner');
+
+  [team2v2, team4v4, team5v5, transferNewTeam, matchTeamA, matchTeamB, matchWinner].forEach(select => {
+    if (!select) return;
+    select.innerHTML = '';
   });
 
-  teams.forEach(team => {
-    const option = document.createElement('option');
-    option.value = team.id;
-    option.textContent = team.name;
+  if (team2v2) {
+    team2v2.innerHTML = '<option value="">-- None --</option>';
+    teams.filter(t => t.league === '2v2').forEach(t => {
+      team2v2.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+    });
+  }
+  if (team4v4) {
+    team4v4.innerHTML = '<option value="">-- None --</option>';
+    teams.filter(t => t.league === '4v4').forEach(t => {
+      team4v4.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+    });
+  }
+  if (team5v5) {
+    team5v5.innerHTML = '<option value="">-- None --</option>';
+    teams.filter(t => t.league === '5v5').forEach(t => {
+      team5v5.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+    });
+  }
 
-    if (team.league === '2v2') {
-      document.getElementById('team2v2')?.appendChild(option.cloneNode(true));
-    } else if (team.league === '4v4') {
-      document.getElementById('team4v4')?.appendChild(option.cloneNode(true));
-    } else if (team.league === '5v5') {
-      document.getElementById('team5v5')?.appendChild(option.cloneNode(true));
-    }
-
-    ['transferNewTeam', 'matchTeamA', 'matchTeamB', 'matchWinner'].forEach(id => {
-      const sel = document.getElementById(id);
-      if (sel) sel.appendChild(option.cloneNode(true));
+  // For transfer and matches, all teams
+  [transferNewTeam, matchTeamA, matchTeamB, matchWinner].forEach(select => {
+    if (!select) return;
+    select.innerHTML = '<option value="">-- Select Team --</option>';
+    teams.forEach(t => {
+      select.innerHTML += `<option value="${t.id}">${t.name} (${t.league})</option>`;
     });
   });
 
-  // Reset sets UI on load teams
-  resetSetsUI();
+  updateMatchSetWinners();
 }
 
-// Admin login form submit
-document.getElementById('adminForm')?.addEventListener('submit', e => {
-  e.preventDefault();
-  const pass = document.getElementById('adminPassword').value;
-  if (pass === ADMIN_PASS) {
-    isAdmin = true;
-    alert('Admin login successful');
-    document.getElementById('adminPanel').classList.remove('hidden');
-    navigate('add');  // Navigate to Add page for admin
-    document.getElementById('adminLoginPanel').classList.add('hidden');
-  } else {
-    alert('Wrong password');
+// Update options for set winner selects based on chosen teams in match form
+function updateMatchSetWinners() {
+  const matchTeamA = document.getElementById('matchTeamA');
+  const matchTeamB = document.getElementById('matchTeamB');
+
+  const winners = document.querySelectorAll('.setWinner');
+  winners.forEach(sel => {
+    sel.innerHTML = '<option value="">-- Select Winner --</option>';
+    if (matchTeamA.value) {
+      const textA = matchTeamA.options[matchTeamA.selectedIndex].text;
+      sel.innerHTML += `<option value="${matchTeamA.value}">${textA}</option>`;
+    }
+    if (matchTeamB.value) {
+      const textB = matchTeamB.options[matchTeamB.selectedIndex].text;
+      sel.innerHTML += `<option value="${matchTeamB.value}">${textB}</option>`;
+    }
+  });
+
+  // Update match winner select
+  const matchWinner = document.getElementById('matchWinner');
+  if (matchWinner) {
+    matchWinner.innerHTML = '<option value="">-- Select Match Winner --</option>';
+    if (matchTeamA.value) {
+      const textA = matchTeamA.options[matchTeamA.selectedIndex].text;
+      matchWinner.innerHTML += `<option value="${matchTeamA.value}">${textA}</option>`;
+    }
+    if (matchTeamB.value) {
+      const textB = matchTeamB.options[matchTeamB.selectedIndex].text;
+      matchWinner.innerHTML += `<option value="${matchTeamB.value}">${textB}</option>`;
+    }
   }
+}
+
+// Add new Set inputs on the match form (up to 3 sets)
+document.getElementById('addSetBtn')?.addEventListener('click', () => {
+  const container = document.getElementById('setsContainer');
+  const existingSets = container.querySelectorAll('.setWinner').length;
+  if (existingSets >= 3) return alert('Maximum 3 sets allowed.');
+
+  const setNum = existingSets + 1;
+  const setDiv = document.createElement('div');
+  setDiv.innerHTML = `
+    <h4>Set ${setNum}</h4>
+    <label>Winner:</label>
+    <select class="setWinner" data-set="${existingSets}" required></select>
+    <label>Score:</label>
+    <input type="text" class="setScore" placeholder="e.g. 25-20" required />
+  `;
+  container.appendChild(setDiv);
+  updateMatchSetWinners();
 });
 
-// Add Player Form
+// Listen for changes in Team A or B select to update winner options dynamically
+document.getElementById('matchTeamA')?.addEventListener('change', updateMatchSetWinners);
+document.getElementById('matchTeamB')?.addEventListener('change', updateMatchSetWinners);
+
+// Add Player form submit
 document.getElementById('playerForm')?.addEventListener('submit', async e => {
   e.preventDefault();
 
@@ -96,158 +125,102 @@ document.getElementById('playerForm')?.addEventListener('submit', async e => {
   const gender = document.getElementById('gender').value;
   const position = document.getElementById('position').value;
 
-  const team2v2 = document.getElementById('team2v2').value;
-  const team4v4 = document.getElementById('team4v4').value;
-  const team5v5 = document.getElementById('team5v5').value;
-
-  const team_ids = [team2v2, team4v4, team5v5].filter(Boolean);
+  // Collect selected team IDs (skip empty)
+  const teamIds = [];
+  ['team2v2', 'team4v4', 'team5v5'].forEach(id => {
+    const val = document.getElementById(id).value;
+    if (val) teamIds.push(parseInt(val));
+  });
 
   let image_url = null;
   const imageFile = document.getElementById('playerImage').files[0];
   if (imageFile) {
-    const filePath = `player-images/${Date.now()}_${imageFile.name}`;
-    const { data, error } = await client.storage.from('player-images').upload(filePath, imageFile);
-    if (error) return alert(error.message);
-    image_url = client.storage.from('player-images').getPublicUrl(filePath).publicURL;
+    const filePath = `${Date.now()}_${imageFile.name}`;
+    const { error } = await supabase.storage.from('player-images').upload(filePath, imageFile);
+    if (error) return alert('Image upload failed: ' + error.message);
+    image_url = supabase.storage.from('player-images').getPublicUrl(filePath).publicURL;
   }
 
-  const { error } = await client.from('players').insert({ name, gender, position, team_ids, image_url });
-  if (error) return alert(error.message);
+  const { error } = await supabase.from('players').insert({
+    name,
+    gender,
+    position,
+    team_ids: teamIds,
+    image_url
+  });
 
-  alert('Player added successfully');
+  if (error) return alert('Add player error: ' + error.message);
+  alert('Player added!');
   e.target.reset();
-  loadTeamsIntoForms();
+  navigate('players');
+  renderPlayersPage();
 });
 
-// Transfer Player Form
+// Add Team form submit
+document.getElementById('teamForm')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = document.getElementById('teamName').value.trim();
+  const league = document.getElementById('teamLeague').value;
+
+  let logo_url = null;
+  const logoFile = document.getElementById('teamLogo').files[0];
+  if (logoFile) {
+    const filePath = `${Date.now()}_${logoFile.name}`;
+    const { error } = await supabase.storage.from('team-logos').upload(filePath, logoFile);
+    if (error) return alert('Logo upload failed: ' + error.message);
+    logo_url = supabase.storage.from('team-logos').getPublicUrl(filePath).publicURL;
+  }
+
+  const { error } = await supabase.from('teams').insert({ name, league, logo_url });
+  if (error) return alert('Add team error: ' + error.message);
+  alert('Team added!');
+  e.target.reset();
+  loadTeamsIntoForms();
+  navigate('teams');
+  renderTeamsPage();
+});
+
+// Transfer form submit
 document.getElementById('transferForm')?.addEventListener('submit', async e => {
   e.preventDefault();
   const playerName = document.getElementById('transferPlayer').value.trim();
   const newTeamId = document.getElementById('transferNewTeam').value;
-  if (!newTeamId) return alert('Please select a team for transfer');
+  if (!newTeamId) return alert('Select a new team.');
 
-  const { data: players } = await client.from('players').select('*').ilike('name', `%${playerName}%`).limit(1);
-  if (!players || players.length === 0) return alert('Player not found');
+  const { data: players } = await supabase.from('players').select('*').ilike('name', `%${playerName}%`).limit(1);
+  if (!players || players.length === 0) return alert('Player not found.');
 
   const player = players[0];
-  const oldTeamId = player.team_ids && player.team_ids.length ? player.team_ids[0] : null;
+  const oldTeamId = player.team_ids.length > 0 ? player.team_ids[0] : null;
 
-  const { error: updateError } = await client.from('players').update({ team_ids: [newTeamId] }).eq('id', player.id);
-  if (updateError) return alert(updateError.message);
+  // Update player team_ids to new team only for simplicity
+  const { error } = await supabase.from('players').update({ team_ids: [parseInt(newTeamId)] }).eq('id', player.id);
+  if (error) return alert('Update player error: ' + error.message);
 
-  await client.from('transfers').insert({ player_id: player.id, old_team_id: oldTeamId, new_team_id: newTeamId });
+  // Insert transfer record
+  const { error: tError } = await supabase.from('transfers').insert({
+    player_id: player.id,
+    old_team_id: oldTeamId,
+    new_team_id: parseInt(newTeamId),
+  });
+  if (tError) return alert('Add transfer error: ' + tError.message);
 
-  alert('Transfer successful');
+  alert('Transfer recorded!');
   e.target.reset();
+  navigate('transfers');
+  renderTransfersPage();
 });
 
-// Add Match Score Form
-
-// Manage dynamic sets UI
-const setsContainer = document.getElementById('setsContainer');
-const addSetBtn = document.getElementById('addSetBtn');
-let currentSets = 1;
-const maxSets = 3;
-
-function resetSetsUI() {
-  setsContainer.innerHTML = '';
-  currentSets = 1;
-  addSetUI(currentSets);
-}
-
-function addSetUI(setNumber) {
-  const h3 = document.createElement('h3');
-  h3.textContent = `Set ${setNumber}`;
-  setsContainer.appendChild(h3);
-
-  const winnerSelect = document.createElement('select');
-  winnerSelect.classList.add('setWinner');
-  winnerSelect.setAttribute('data-set', setNumber);
-  winnerSelect.required = true;
-  winnerSelect.innerHTML = '<option value="">Select Winner</option>';
-  ['matchTeamA', 'matchTeamB'].forEach(id => {
-    const sourceSelect = document.getElementById(id);
-    if (sourceSelect) {
-      [...sourceSelect.options].forEach(opt => {
-        if (opt.value !== '') {
-          const optionClone = document.createElement('option');
-          optionClone.value = opt.value;
-          optionClone.textContent = opt.textContent;
-          winnerSelect.appendChild(optionClone);
-        }
-      });
-    }
-  });
-  setsContainer.appendChild(winnerSelect);
-
-  const scoreInput = document.createElement('input');
-  scoreInput.classList.add('setScore');
-  scoreInput.setAttribute('data-set', setNumber);
-  scoreInput.placeholder = 'Score (e.g. 25-22)';
-  scoreInput.required = true;
-  setsContainer.appendChild(scoreInput);
-}
-
-addSetBtn.addEventListener('click', () => {
-  if (currentSets < maxSets) {
-    currentSets++;
-    addSetUI(currentSets);
-  } else {
-    alert(`Maximum of ${maxSets} sets allowed.`);
-  }
-});
-
-// When teams are changed, update sets winners dropdown options
-document.getElementById('matchTeamA').addEventListener('change', updateSetsWinnersOptions);
-document.getElementById('matchTeamB').addEventListener('change', updateSetsWinnersOptions);
-
-function updateSetsWinnersOptions() {
-  const teamASelect = document.getElementById('matchTeamA');
-  const teamBSelect = document.getElementById('matchTeamB');
-  const winners = [teamASelect.value, teamBSelect.value];
-
-  // Update all setWinner selects
-  document.querySelectorAll('.setWinner').forEach(sel => {
-    const selectedValue = sel.value;
-    sel.innerHTML = '<option value="">Select Winner</option>';
-    winners.forEach(teamId => {
-      if (!teamId) return;
-      const option = document.createElement('option');
-      option.value = teamId;
-      option.textContent = document.querySelector(`#matchTeamA option[value="${teamId}"]`)?.textContent ||
-                          document.querySelector(`#matchTeamB option[value="${teamId}"]`)?.textContent || 'Unknown';
-      sel.appendChild(option);
-    });
-    // Restore previously selected if still available
-    if (winners.includes(selectedValue)) {
-      sel.value = selectedValue;
-    }
-  });
-
-  // Update match winner select
-  const matchWinner = document.getElementById('matchWinner');
-  const prevWinner = matchWinner.value;
-  matchWinner.innerHTML = '<option value="">Select Match Winner</option>';
-  winners.forEach(teamId => {
-    if (!teamId) return;
-    const option = document.createElement('option');
-    option.value = teamId;
-    option.textContent = document.querySelector(`#matchTeamA option[value="${teamId}"]`)?.textContent ||
-                        document.querySelector(`#matchTeamB option[value="${teamId}"]`)?.textContent || 'Unknown';
-    matchWinner.appendChild(option);
-  });
-  if (winners.includes(prevWinner)) {
-    matchWinner.value = prevWinner;
-  }
-}
-
-// Submit match form
+// Match form submit
 document.getElementById('matchForm')?.addEventListener('submit', async e => {
   e.preventDefault();
 
   const teamA = document.getElementById('matchTeamA').value;
   const teamB = document.getElementById('matchTeamB').value;
-  if (!teamA || !teamB || teamA === teamB) return alert('Select two different teams');
+  const winner = document.getElementById('matchWinner').value;
+  const video_url = document.getElementById('matchVideo').value.trim();
+
+  if (teamA === teamB) return alert('Teams must be different.');
 
   // Gather sets data
   const sets = [];
@@ -255,81 +228,127 @@ document.getElementById('matchForm')?.addEventListener('submit', async e => {
   const setScores = document.querySelectorAll('.setScore');
 
   for (let i = 0; i < setWinners.length; i++) {
-    const winner = setWinners[i].value;
-    const score = setScores[i].value.trim();
-    if (!winner || !score) return alert(`Please fill winner and score for set ${i + 1}`);
-    sets.push({ set_number: i + 1, winner_team_id: winner, score });
+    const w = setWinners[i].value;
+    const s = setScores[i].value.trim();
+    if (!w || !s) return alert(`Set ${i + 1} is incomplete.`);
+    sets.push({ winner_team_id: parseInt(w), score: s });
   }
 
-  const matchWinner = document.getElementById('matchWinner').value;
-  if (!matchWinner) return alert('Select match winner');
+  if (sets.length === 0) return alert('Add at least one set.');
 
-  // Insert match with sets and winner
-  const { error } = await client.from('matches').insert({
-    team_a_id: teamA,
-    team_b_id: teamB,
-    sets,
-    winner_team_id: matchWinner,
-    video_url: document.getElementById('matchVideo').value.trim() || null
+  // Insert match
+  const { error } = await supabase.from('matches').insert({
+    team_a_id: parseInt(teamA),
+    team_b_id: parseInt(teamB),
+    winner_team_id: parseInt(winner),
+    sets: JSON.stringify(sets),
+    video_url: video_url || null,
   });
+  if (error) return alert('Add match error: ' + error.message);
 
-  if (error) return alert(error.message);
-
-  alert('Match recorded successfully');
+  alert('Match recorded!');
   e.target.reset();
-  resetSetsUI();
+  navigate('matches');
+  renderMatchesPage();
 });
 
-// Render functions for pages (simplified example)
+// Render players page
 async function renderPlayersPage() {
-  const { data: players } = await client.from('players').select('*,team_ids');
+  const { data, error } = await supabase.from('players').select('*').order('created_at', { ascending: false });
+  if (error) return console.error(error);
+
   const container = document.getElementById('allPlayers');
   container.innerHTML = '';
-  players.forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.textContent = `${p.name} (${p.gender}) - ${p.position}`;
-    container.appendChild(div);
+  data.forEach(p => {
+    container.innerHTML += `
+      <div class="card">
+        <strong>${p.name}</strong> (${p.gender})<br />
+        Position: ${p.position}<br />
+        Teams: ${p.team_ids.length ? p.team_ids.join(', ') : 'None'}<br />
+        ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" width="100" />` : ''}
+      </div>
+    `;
   });
 }
 
+// Render teams page
 async function renderTeamsPage() {
-  const { data: teams } = await client.from('teams').select('*');
+  const { data, error } = await supabase.from('teams').select('*').order('name');
+  if (error) return console.error(error);
+
   const container = document.getElementById('allTeams');
   container.innerHTML = '';
-  teams.forEach(t => {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.textContent = `${t.name} (${t.league})`;
-    container.appendChild(div);
+  data.forEach(t => {
+    container.innerHTML += `
+      <div class="card">
+        <strong>${t.name}</strong> (${t.league})<br />
+        ${t.logo_url ? `<img src="${t.logo_url}" alt="${t.name}" width="100" />` : ''}
+      </div>
+    `;
   });
 }
 
+// Render transfers page
 async function renderTransfersPage() {
-  const { data: transfers } = await client.from('transfers').select('*').limit(20).order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('transfers')
+    .select('id, player_id, old_team_id, new_team_id, created_at, players(name), old_team_id:teams(name), new_team_id:teams(name)')
+    .order('created_at', { ascending: false });
+
+  if (error) return console.error(error);
+
   const container = document.getElementById('allTransfers');
   container.innerHTML = '';
-  transfers.forEach(tr => {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.textContent = `Transfer ID: ${tr.id}`;
-    container.appendChild(div);
-  });
+  for (const t of data) {
+    // Fetch player and team names manually because of limited select
+    const { data: p } = await supabase.from('players').select('name').eq('id', t.player_id).single();
+    const { data: oldT } = t.old_team_id ? await supabase.from('teams').select('name').eq('id', t.old_team_id).single() : { data: null };
+    const { data: newT } = await supabase.from('teams').select('name').eq('id', t.new_team_id).single();
+
+    container.innerHTML += `
+      <div class="card">
+        Player: ${p?.name || 'Unknown'}<br />
+        From: ${oldT?.name || 'None'}<br />
+        To: ${newT?.name || 'Unknown'}<br />
+        On: ${new Date(t.created_at).toLocaleString()}
+      </div>
+    `;
+  }
 }
 
+// Render matches page
 async function renderMatchesPage() {
-  const { data: matches } = await client.from('matches').select('*').limit(20).order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('matches').select('*').order('created_at', { ascending: false });
+  if (error) return console.error(error);
+
   const container = document.getElementById('allMatches');
   container.innerHTML = '';
-  matches.forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.textContent = `Match ID: ${m.id}`;
-    container.appendChild(div);
-  });
+  for (const m of data) {
+    const { data: teamA } = await supabase.from('teams').select('name').eq('id', m.team_a_id).single();
+    const { data: teamB } = await supabase.from('teams').select('name').eq('id', m.team_b_id).single();
+    const { data: winner } = await supabase.from('teams').select('name').eq('id', m.winner_team_id).single();
+
+    let setsHtml = '';
+    const sets = JSON.parse(m.sets);
+    sets.forEach((set, i) => {
+      setsHtml += `<div>Set ${i + 1}: Winner - ${set.winner_team_id === m.team_a_id ? teamA.name : teamB.name}, Score - ${set.score}</div>`;
+    });
+
+    container.innerHTML += `
+      <div class="card">
+        <strong>Match: ${teamA.name} vs ${teamB.name}</strong><br />
+        ${setsHtml}
+        <div><strong>Match Winner: ${winner.name}</strong></div>
+        ${m.video_url ? `<div><a href="${m.video_url}" target="_blank">Watch Video</a></div>` : ''}
+        <div>Recorded on: ${new Date(m.created_at).toLocaleString()}</div>
+      </div>
+    `;
+  }
 }
 
-// Initial setup
+// Initial page load
 navigate('home');
 loadTeamsIntoForms();
-resetSetsUI();
+renderPlayersPage();
+renderTeamsPage();
+renderTransfersPage();
+renderMatchesPage();
