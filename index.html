@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Volleyball DB</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -16,7 +16,6 @@
     <button onclick="navigate('transfers')">Transfers</button>
     <button onclick="navigate('matches')">Match Scores</button>
     <button onclick="navigate('add')">Add New Item</button>
-    <button id="adminLoginBtn">Admin Login</button>
   </nav>
 
   <!-- HOME PAGE -->
@@ -85,30 +84,15 @@
 
     <h2>🎯 Add Match Score</h2>
     <form id="matchForm">
-      <label>Team A</label>
-      <select id="matchTeamA" required></select>
-
-      <label>Team B</label>
-      <select id="matchTeamB" required></select>
-
-      <div id="setsContainer">
-        <h3>Sets (Up to 3)</h3>
-        <!-- dynamically added sets will appear here -->
-      </div>
-      <button type="button" id="addSetBtn">Add Set</button>
-
-      <label>Match Winner</label>
-      <select id="matchWinner" required></select>
-
+      <input id="matchTeamA" placeholder="Team A Name" required />
+      <input id="matchTeamB" placeholder="Team B Name" required />
+      <input id="matchSets" placeholder="Set Scores (e.g. 25-22, 20-25, 15-10)" required />
+      <input id="matchWinner" placeholder="Winning Team Name" required />
       <input id="matchVideo" placeholder="Video URL (optional)" />
       <button>Record Match</button>
     </form>
-  </div>
 
-  <!-- ADMIN DASHBOARD -->
-  <div id="adminPanel" class="page hidden">
-    <h2>🏆 Admin Dashboard</h2>
-    <h3>Add Team</h3>
+    <h2>🏆 Add Team</h2>
     <form id="teamForm">
       <input id="teamName" placeholder="Team Name" required />
       <select id="teamLeague">
@@ -120,19 +104,6 @@
       <input type="file" id="teamLogo" accept="image/*" />
       <button>Add Team</button>
     </form>
-    <button id="adminLogoutBtn">Logout Admin</button>
-  </div>
-
-  <!-- ADMIN LOGIN MODAL -->
-  <div id="adminLoginModal" class="modal hidden">
-    <div class="modal-content">
-      <span id="closeAdminModal" class="close">&times;</span>
-      <h2>🔐 Admin Login</h2>
-      <form id="adminForm">
-        <input type="password" id="adminPassword" placeholder="Admin Password" required />
-        <button>Login as Admin</button>
-      </form>
-    </div>
   </div>
 
   <footer>
