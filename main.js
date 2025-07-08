@@ -1,6 +1,6 @@
 // ✅ Supabase Client Setup
-const SUPABASE_URL = 'https://mespelpryubyjddadruu.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc3BlbHByeXVieWpkZGFkcnV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5OTczNTMsImV4cCI6MjA2NzU3MzM1M30.Vb8kivvLXJ6t1-zcOiG_24e4EWR67IFwwOpUkcykREg';
+const SUPABASE_URL = 'https://ccwajatpnsaxfwxkjxpb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjd2FqYXRwbnNheGZ3eGtqeHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5OTk4MDcsImV4cCI6MjA2NzU3NTgwN30.hyUE2bcZajV3orOJ-PvMZ81J_5OH8JNgYLbbWUxOkkk';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let isAdmin = false;
