@@ -11,6 +11,10 @@ function navigate(pageId) {
   document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
   document.getElementById(pageId).classList.remove('hidden');
   if (pageId === 'add') loadTeamsIntoForms();
+  if (pageId === 'players') renderPlayersPage();
+  if (pageId === 'teams') renderTeamsPage();
+  if (pageId === 'transfers') renderTransfersPage();
+  if (pageId === 'matches') renderMatchesPage();
 }
 
 // 🟡 Load Teams for Dropdowns
@@ -159,6 +163,30 @@ function subscribeRealtime() {
   supabase.channel('public:players').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, fetchLiveHome).subscribe();
   supabase.channel('public:transfers').on('postgres_changes', { event: '*', schema: 'public', table: 'transfers' }, fetchLiveHome).subscribe();
   supabase.channel('public:matches').on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, fetchLiveHome).subscribe();
+}
+
+// ✅ Render Players Page
+async function renderPlayersPage() {
+  const { data: players } = await supabase.from('players').select('*').order('created_at', { ascending: false });
+  document.getElementById('allPlayers').innerHTML = players.map(p => `<div class='card'><strong>${p.name}</strong><br>${p.gender} • ${p.position}</div>`).join('');
+}
+
+// ✅ Render Teams Page
+async function renderTeamsPage() {
+  const { data: teams } = await supabase.from('teams').select('*').order('name');
+  document.getElementById('allTeams').innerHTML = teams.map(t => `<div class='card'><strong>${t.name}</strong><br>League: ${t.league}<br>Members: ${t.members.join(', ')}</div>`).join('');
+}
+
+// ✅ Render Transfers Page
+async function renderTransfersPage() {
+  const { data: transfers } = await supabase.from('transfers').select('*, players(name), old_team:teams!transfers_old_team_id_fkey(name), new_team:teams!transfers_new_team_id_fkey(name)').order('transferred_at', { ascending: false });
+  document.getElementById('allTransfers').innerHTML = transfers.map(t => `<div class='card'><strong>${t.players.name}</strong><br>${t.old_team?.name || 'No Team'} → ${t.new_team?.name}</div>`).join('');
+}
+
+// ✅ Render Matches Page
+async function renderMatchesPage() {
+  const { data: matches } = await supabase.from('matches').select('*, team_a:teams!matches_team_a_fkey(name), team_b:teams!matches_team_b_fkey(name), winner:teams!matches_winner_fkey(name)').order('played_at', { ascending: false });
+  document.getElementById('allMatches').innerHTML = matches.map(m => `<div class='card'><strong>${m.team_a.name}</strong> vs <strong>${m.team_b.name}</strong><br>Sets: ${m.set_scores}<br>Winner: ${m.winner.name}${m.video_url ? `<br><a href='${m.video_url}' target='_blank'>Match Video</a>` : ''}</div>`).join('');
 }
 
 // 🚀 Init on Load
