@@ -71,78 +71,63 @@
         <option>All Rounder</option>
       </select>
 
-      <label for="team2v2">Select 2v2 Team (optional)</label>
-      <select id="team2v2">
-        <option value="">-- None --</option>
-      </select>
+      <h4>Select Teams (optional)</h4>
+      <label>2v2 Team:</label>
+      <select id="team2v2"><option value="">-- None --</option></select>
 
-      <label for="team4v4">Select 4v4 Team (optional)</label>
-      <select id="team4v4">
-        <option value="">-- None --</option>
-      </select>
+      <label>4v4 Team:</label>
+      <select id="team4v4"><option value="">-- None --</option></select>
 
-      <label for="team5v5">Select 5v5 Team (optional)</label>
-      <select id="team5v5">
-        <option value="">-- None --</option>
-      </select>
+      <label>5v5 Team:</label>
+      <select id="team5v5"><option value="">-- None --</option></select>
 
       <input type="file" id="playerImage" accept="image/*" />
       <button>Add Player</button>
     </form>
 
-    <h2>🔁 Transfer Player</h2>
-    <form id="transferForm">
-      <input id="transferPlayer" placeholder="Player Name" required />
-      <select id="transferNewTeam"></select>
-      <button>Submit Transfer</button>
-    </form>
-
-    <h2>🎯 Add Match Score</h2>
-    <form id="matchForm">
-      <select id="matchTeamA" required><option value="">Select Team A</option></select>
-      <select id="matchTeamB" required><option value="">Select Team B</option></select>
-
-      <div id="setsContainer">
-        <h3>Set 1</h3>
-        <select class="setWinner" data-set="1" required>
-          <option value="">Select Winner</option>
-        </select>
-        <input class="setScore" data-set="1" placeholder="Score (e.g. 25-22)" required />
-      </div>
-
-      <button type="button" id="addSetBtn">Add Set</button>
-
-      <h3>Match Winner</h3>
-      <select id="matchWinner" required>
-        <option value="">Select Match Winner</option>
-      </select>
-
-      <input id="matchVideo" placeholder="Video URL (optional)" />
-      <button>Record Match</button>
-    </form>
-  </div>
-
-  <!-- ADMIN LOGIN -->
-  <div id="adminLoginPanel" class="page hidden">
-    <h2>🔐 Admin Login</h2>
-    <form id="adminForm">
-      <input type="password" id="adminPassword" placeholder="Admin Password" required />
-      <button>Login as Admin</button>
-    </form>
-  </div>
-
-  <!-- ADMIN PANEL -->
-  <div id="adminPanel" class="page hidden">
-    <h2>🏆 Add Team (Admin Only)</h2>
+    <h2>➕ Add Team</h2>
     <form id="teamForm">
       <input id="teamName" placeholder="Team Name" required />
       <select id="teamLeague" required>
+        <option value="">Select League</option>
         <option value="2v2">2v2</option>
         <option value="4v4">4v4</option>
         <option value="5v5">5v5</option>
       </select>
       <input type="file" id="teamLogo" accept="image/*" />
       <button>Add Team</button>
+    </form>
+
+    <h2>➕ Add Transfer</h2>
+    <form id="transferForm">
+      <input id="transferPlayer" placeholder="Player Name" required />
+      <select id="transferNewTeam" required></select>
+      <button>Submit Transfer</button>
+    </form>
+
+    <h2>➕ Add Match Score</h2>
+    <form id="matchForm">
+      <label>Team A:</label>
+      <select id="matchTeamA" required></select>
+
+      <label>Team B:</label>
+      <select id="matchTeamB" required></select>
+
+      <div id="setsContainer">
+        <h4>Set 1</h4>
+        <label>Winner:</label>
+        <select class="setWinner" data-set="0" required></select>
+        <label>Score:</label>
+        <input type="text" class="setScore" placeholder="e.g. 25-20" required />
+      </div>
+
+      <button type="button" id="addSetBtn">Add Set</button>
+
+      <label>Match Winner:</label>
+      <select id="matchWinner" required></select>
+
+      <input id="matchVideo" placeholder="Video URL (optional)" />
+      <button>Record Match</button>
     </form>
   </div>
 
