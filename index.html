@@ -16,7 +16,23 @@
     <button onclick="navigate('transfers')">Transfers</button>
     <button onclick="navigate('matches')">Match Scores</button>
     <button onclick="navigate('add')">Add New Item</button>
+    <button id="adminLoginBtn" onclick="toggleAdminLogin()">Admin Login</button>
   </nav>
+
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="adminLoginModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="toggleAdminLogin()">&times;</span>
+      <h2>🔐 Admin Login</h2>
+      <form id="adminForm">
+        <input type="password" id="adminPassword" placeholder="Admin Password" required />
+        <button>Login as Admin</button>
+      </form>
+      <div id="adminPanel" class="hidden">
+        <p>Admin logged in.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- HOME PAGE -->
   <div id="home" class="page">
@@ -94,46 +110,22 @@
 
       <div class="set">
         <input type="text" id="set1Score" placeholder="Set 1 score (e.g. 25-22)" required />
-        <select id="set1Winner" required>
-          <option value="A">Team A wins</option>
-          <option value="B">Team B wins</option>
-        </select>
+        <select id="set1Winner" required></select>
       </div>
       <div class="set">
         <input type="text" id="set2Score" placeholder="Set 2 score (e.g. 20-25)" required />
-        <select id="set2Winner" required>
-          <option value="A">Team A wins</option>
-          <option value="B">Team B wins</option>
-        </select>
+        <select id="set2Winner" required></select>
       </div>
       <div class="set">
         <input type="text" id="set3Score" placeholder="Set 3 score (e.g. 15-10)" />
-        <select id="set3Winner">
-          <option value="A">Team A wins</option>
-          <option value="B">Team B wins</option>
-        </select>
+        <select id="set3Winner"></select>
       </div>
 
-      <select id="matchWinner" required>
-        <option value="A">Team A</option>
-        <option value="B">Team B</option>
-      </select>
+      <select id="matchWinner" required></select>
 
       <input id="matchVideo" placeholder="Video URL (optional)" />
       <button>Record Match</button>
     </form>
-  </div>
-
-  <!-- ADMIN LOGIN -->
-  <div class="page">
-    <h2>🔐 Admin Login</h2>
-    <form id="adminForm">
-      <input type="password" id="adminPassword" placeholder="Admin Password" required />
-      <button>Login as Admin</button>
-    </form>
-    <div id="adminPanel" class="hidden">
-      <p>Admin logged in.</p>
-    </div>
   </div>
 
   <footer>
