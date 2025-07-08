@@ -16,7 +16,6 @@
     <button onclick="navigate('transfers')">Transfers</button>
     <button onclick="navigate('matches')">Match Scores</button>
     <button onclick="navigate('add')">Add New Item</button>
-    <button id="adminLoginBtn" onclick="toggleAdminLogin()">Admin Login</button>
   </nav>
 
   <!-- HOME PAGE -->
@@ -73,39 +72,10 @@
       </select>
       <select id="playerTeams" multiple></select>
       <input type="file" id="playerImage" accept="image/*" />
-      <button type="submit">Add Player</button>
+      <button>Add Player</button>
     </form>
 
-    <h2>🔁 Transfer Player</h2>
-    <form id="transferForm">
-      <input id="transferPlayer" placeholder="Player Name" required />
-      <select id="transferNewTeam"></select>
-      <button type="submit">Submit Transfer</button>
-    </form>
-
-    <h2>🎯 Add Match Score</h2>
-    <form id="matchForm">
-      <input id="matchTeamA" placeholder="Team A Name" required />
-      <input id="matchTeamB" placeholder="Team B Name" required />
-      <input id="matchSets" placeholder="Set Scores (e.g. 25-22, 20-25, 15-10)" required />
-      <input id="matchWinner" placeholder="Winning Team Name" required />
-      <input id="matchVideo" placeholder="Video URL (optional)" />
-      <button type="submit">Record Match</button>
-    </form>
-  </div>
-
-  <!-- ADMIN LOGIN PANEL -->
-  <div id="adminLoginPanel" class="hidden">
-    <form id="adminForm">
-      <input type="password" id="adminPassword" placeholder="Admin Password" required />
-      <button type="submit">Login as Admin</button>
-      <button type="button" onclick="toggleAdminLogin()">Cancel</button>
-    </form>
-  </div>
-
-  <!-- ADMIN DASHBOARD -->
-  <div id="adminPanel" class="hidden">
-    <h2>🏆 Admin Dashboard - Add Team</h2>
+    <h2>🏆 Add Team (Admin Only)</h2>
     <form id="teamForm">
       <input id="teamName" placeholder="Team Name" required />
       <select id="teamLeague">
@@ -113,11 +83,57 @@
         <option>4v4</option>
         <option>5v5</option>
       </select>
-      <input id="teamMembers" placeholder="Members (comma separated)" />
       <input type="file" id="teamLogo" accept="image/*" />
-      <button type="submit">Add Team</button>
+      <button>Add Team</button>
     </form>
-    <button onclick="logoutAdmin()">Logout Admin</button>
+
+    <h2>🎯 Add Match Score</h2>
+    <form id="matchForm">
+      <select id="matchTeamA" required></select>
+      <select id="matchTeamB" required></select>
+
+      <div class="set">
+        <input type="text" id="set1Score" placeholder="Set 1 score (e.g. 25-22)" required />
+        <select id="set1Winner" required>
+          <option value="A">Team A wins</option>
+          <option value="B">Team B wins</option>
+        </select>
+      </div>
+      <div class="set">
+        <input type="text" id="set2Score" placeholder="Set 2 score (e.g. 20-25)" required />
+        <select id="set2Winner" required>
+          <option value="A">Team A wins</option>
+          <option value="B">Team B wins</option>
+        </select>
+      </div>
+      <div class="set">
+        <input type="text" id="set3Score" placeholder="Set 3 score (e.g. 15-10)" />
+        <select id="set3Winner">
+          <option value="A">Team A wins</option>
+          <option value="B">Team B wins</option>
+        </select>
+      </div>
+
+      <select id="matchWinner" required>
+        <option value="A">Team A</option>
+        <option value="B">Team B</option>
+      </select>
+
+      <input id="matchVideo" placeholder="Video URL (optional)" />
+      <button>Record Match</button>
+    </form>
+  </div>
+
+  <!-- ADMIN LOGIN -->
+  <div class="page">
+    <h2>🔐 Admin Login</h2>
+    <form id="adminForm">
+      <input type="password" id="adminPassword" placeholder="Admin Password" required />
+      <button>Login as Admin</button>
+    </form>
+    <div id="adminPanel" class="hidden">
+      <p>Admin logged in.</p>
+    </div>
   </div>
 
   <footer>
