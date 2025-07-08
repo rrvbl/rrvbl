@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Volleyball DB</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -16,23 +16,8 @@
     <button onclick="navigate('transfers')">Transfers</button>
     <button onclick="navigate('matches')">Match Scores</button>
     <button onclick="navigate('add')">Add New Item</button>
-    <button id="adminLoginBtn" onclick="toggleAdminLogin()">Admin Login</button>
+    <button id="adminLoginBtn">Admin Login</button>
   </nav>
-
-  <!-- ADMIN LOGIN MODAL -->
-  <div id="adminLoginModal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close" onclick="toggleAdminLogin()">&times;</span>
-      <h2>🔐 Admin Login</h2>
-      <form id="adminForm">
-        <input type="password" id="adminPassword" placeholder="Admin Password" required />
-        <button>Login as Admin</button>
-      </form>
-      <div id="adminPanel" class="hidden">
-        <p>Admin logged in.</p>
-      </div>
-    </div>
-  </div>
 
   <!-- HOME PAGE -->
   <div id="home" class="page">
@@ -91,7 +76,39 @@
       <button>Add Player</button>
     </form>
 
-    <h2>🏆 Add Team (Admin Only)</h2>
+    <h2>🔁 Transfer Player</h2>
+    <form id="transferForm">
+      <input id="transferPlayer" placeholder="Player Name" required />
+      <select id="transferNewTeam"></select>
+      <button>Submit Transfer</button>
+    </form>
+
+    <h2>🎯 Add Match Score</h2>
+    <form id="matchForm">
+      <label>Team A</label>
+      <select id="matchTeamA" required></select>
+
+      <label>Team B</label>
+      <select id="matchTeamB" required></select>
+
+      <div id="setsContainer">
+        <h3>Sets (Up to 3)</h3>
+        <!-- dynamically added sets will appear here -->
+      </div>
+      <button type="button" id="addSetBtn">Add Set</button>
+
+      <label>Match Winner</label>
+      <select id="matchWinner" required></select>
+
+      <input id="matchVideo" placeholder="Video URL (optional)" />
+      <button>Record Match</button>
+    </form>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="adminPanel" class="page hidden">
+    <h2>🏆 Admin Dashboard</h2>
+    <h3>Add Team</h3>
     <form id="teamForm">
       <input id="teamName" placeholder="Team Name" required />
       <select id="teamLeague">
@@ -99,33 +116,23 @@
         <option>4v4</option>
         <option>5v5</option>
       </select>
+      <input id="teamMembers" placeholder="Members (comma separated)" />
       <input type="file" id="teamLogo" accept="image/*" />
       <button>Add Team</button>
     </form>
+    <button id="adminLogoutBtn">Logout Admin</button>
+  </div>
 
-    <h2>🎯 Add Match Score</h2>
-    <form id="matchForm">
-      <select id="matchTeamA" required></select>
-      <select id="matchTeamB" required></select>
-
-      <div class="set">
-        <input type="text" id="set1Score" placeholder="Set 1 score (e.g. 25-22)" required />
-        <select id="set1Winner" required></select>
-      </div>
-      <div class="set">
-        <input type="text" id="set2Score" placeholder="Set 2 score (e.g. 20-25)" required />
-        <select id="set2Winner" required></select>
-      </div>
-      <div class="set">
-        <input type="text" id="set3Score" placeholder="Set 3 score (e.g. 15-10)" />
-        <select id="set3Winner"></select>
-      </div>
-
-      <select id="matchWinner" required></select>
-
-      <input id="matchVideo" placeholder="Video URL (optional)" />
-      <button>Record Match</button>
-    </form>
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="adminLoginModal" class="modal hidden">
+    <div class="modal-content">
+      <span id="closeAdminModal" class="close">&times;</span>
+      <h2>🔐 Admin Login</h2>
+      <form id="adminForm">
+        <input type="password" id="adminPassword" placeholder="Admin Password" required />
+        <button>Login as Admin</button>
+      </form>
+    </div>
   </div>
 
   <footer>
