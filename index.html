@@ -261,7 +261,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>🏐 Volleyball Database</h1>
+            <h1>署 Volleyball Database</h1>
             <nav>
                 <button class="nav-btn active" onclick="showSection('home')">Home</button>
                 <button class="nav-btn" onclick="showSection('players')">Players</button>
@@ -273,25 +273,23 @@
         </header>
 
         <div class="main-content">
-            <!-- Home Section -->
             <div id="home" class="section active">
                 <div class="home-section">
-                    <h2>🆕 Recently Added Players</h2>
+                    <h2>Recently Added Players</h2>
                     <div id="recent-players" class="player-grid"></div>
                 </div>
                 
                 <div class="home-section">
-                    <h2>🔄 Recent Transfers</h2>
+                    <h2>売 Recent Transfers</h2>
                     <div id="recent-transfers" class="transfer-grid"></div>
                 </div>
                 
                 <div class="home-section">
-                    <h2>🏆 Recent Match Scores</h2>
+                    <h2>醇 Recent Match Scores</h2>
                     <div id="recent-matches" class="match-grid"></div>
                 </div>
             </div>
 
-            <!-- Players Section -->
             <div id="players" class="section">
                 <h2>All Players</h2>
                 <div class="search-container">
@@ -300,7 +298,6 @@
                 <div id="players-list" class="item-list"></div>
             </div>
 
-            <!-- Search Section -->
             <div id="search" class="section">
                 <h2>Search Database</h2>
                 <div class="search-container">
@@ -309,7 +306,6 @@
                 <div id="search-results" class="item-list"></div>
             </div>
 
-            <!-- Teams Section -->
             <div id="teams" class="section">
                 <h2>All Teams</h2>
                 <div class="search-container">
@@ -318,13 +314,11 @@
                 <div id="teams-list" class="item-list"></div>
             </div>
 
-            <!-- Transfers Section -->
             <div id="transfers" class="section">
                 <h2>All Transfers</h2>
                 <div id="transfers-list" class="item-list"></div>
             </div>
 
-            <!-- Add New Item Section -->
             <div id="add" class="section">
                 <h2>Add New Item</h2>
                 <div style="margin-bottom: 20px;">
@@ -334,7 +328,6 @@
                     <button class="btn" onclick="showAddForm('match')">Add Match Score</button>
                 </div>
 
-                <!-- Add Player Form -->
                 <div id="add-player-form" class="form-container" style="display: none;">
                     <h3>Add New Player</h3>
                     <form onsubmit="addPlayer(event)">
@@ -387,7 +380,6 @@
                     <div id="player-form-message"></div>
                 </div>
 
-                <!-- Add Team Form -->
                 <div id="add-team-form" class="form-container" style="display: none;">
                     <h3>Add New Team</h3>
                     <form onsubmit="addTeam(event)">
@@ -421,7 +413,6 @@
                     <div id="team-form-message"></div>
                 </div>
 
-                <!-- Add Transfer Form -->
                 <div id="add-transfer-form" class="form-container" style="display: none;">
                     <h3>Add Transfer</h3>
                     <form onsubmit="addTransfer(event)">
@@ -443,7 +434,6 @@
                     <div id="transfer-form-message"></div>
                 </div>
 
-                <!-- Add Match Form -->
                 <div id="add-match-form" class="form-container" style="display: none;">
                     <h3>Add Match Score</h3>
                     <form onsubmit="addMatch(event)">
@@ -477,7 +467,6 @@
                     <div id="match-form-message"></div>
                 </div>
 
-                <!-- Quick Add Team Modal -->
                 <div id="quick-add-team" class="form-container" style="display: none;">
                     <h3>Quick Add Team</h3>
                     <form onsubmit="quickAddTeam(event)">
@@ -508,7 +497,7 @@
         const SUPABASE_URL = 'https://mespelpryubyjddadruu.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc3BlbHByeXVieWpkZGFkcnV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5OTczNTMsImV4cCI6MjA2NzU3MzM1M30.Vb8kivvLXJ6t1-zcOiG_24e4EWR67IFwwOpUkcykREg';
         
-        // Initialize Supabase client
+        // Initialize Supabase client first
         const supabase = supabase?.createClient ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
         // Global variables
@@ -1115,7 +1104,7 @@
         // Setup instructions for Supabase
         if (!supabase || SUPABASE_URL === 'https://mespelpryubyjddadruu.supabase.co') {
             console.log(`
-                🏐 Volleyball Database Setup Instructions:
+                署 Volleyball Database Setup Instructions:
                 
                 1. Create a free Supabase account at https://supabase.com
                 
