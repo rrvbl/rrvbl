@@ -58,6 +58,7 @@ form {
   border-radius: 10px;
   max-width: 500px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
 }
 
 form input, form select, form textarea {
@@ -81,11 +82,25 @@ form button:hover {
   background-color: #ef6c00;
 }
 
-#adminPanel {
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 2px dashed #f57c00;
+#adminLoginPanel {
+  position: fixed;
+  top: 70px;
+  right: 20px;
   background: #fff3e0;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 2px solid #f57c00;
+  box-shadow: 0 2px 10px rgba(245,124,0,0.7);
+  z-index: 1000;
+  width: 260px;
+}
+
+#adminPanel {
+  background: #fff3e0;
+  border: 2px dashed #f57c00;
+  padding: 1rem;
+  margin: 2rem 0;
+  border-radius: 6px;
 }
 
 footer {
