@@ -1,109 +1,41 @@
-// Supabase client setup
+// ✅ Supabase Client Setup
 const SUPABASE_URL = 'https://ccwajatpnsaxfwxkjxpb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjd2FqYXRwbnNheGZ3eGtqeHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5OTk4MDcsImV4cCI6MjA2NzU3NTgwN30.hyUE2bcZajV3orOJ-PvMZ81J_5OH8JNgYLbbWUxOkkk';
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let isAdmin = false;
-const ADMIN_PASS = 'volleyadmin';
-
-// Navigation
+// 🔁 Navigation
 function navigate(pageId) {
   document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
-  document.getElementById(pageId)?.classList.remove('hidden');
+  document.getElementById(pageId).classList.remove('hidden');
   if (pageId === 'add') loadTeamsIntoForms();
   if (pageId === 'players') renderPlayersPage();
   if (pageId === 'teams') renderTeamsPage();
   if (pageId === 'transfers') renderTransfersPage();
   if (pageId === 'matches') renderMatchesPage();
-  if (pageId === 'adminPanel') loadTeamsIntoForms();
 }
 
-// Load teams for dropdowns
+// 🟡 Load Teams for Dropdowns
 async function loadTeamsIntoForms() {
   const { data: teams } = await client.from('teams').select('*').order('name');
-  // Player teams multiple select
-  const playerTeamsSelect = document.getElementById('playerTeams');
-  if (playerTeamsSelect) {
-    playerTeamsSelect.innerHTML = '';
+  const selects = ['playerTeams', 'transferNewTeam'];
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '';
     teams.forEach(team => {
       const option = document.createElement('option');
       option.value = team.id;
       option.textContent = team.name;
-      playerTeamsSelect.appendChild(option);
+      el.appendChild(option);
     });
-  }
-
-  // Transfer new team select
-  const transferNewTeamSelect = document.getElementById('transferNewTeam');
-  if (transferNewTeamSelect) {
-    transferNewTeamSelect.innerHTML = '';
-    teams.forEach(team => {
-      const option = document.createElement('option');
-      option.value = team.id;
-      option.textContent = team.name;
-      transferNewTeamSelect.appendChild(option);
-    });
-  }
-
-  // Match Team A and B selects
-  const matchTeamASelect = document.getElementById('matchTeamA');
-  const matchTeamBSelect = document.getElementById('matchTeamB');
-  const matchWinnerSelect = document.getElementById('matchWinner');
-  if (matchTeamASelect && matchTeamBSelect && matchWinnerSelect) {
-    [matchTeamASelect, matchTeamBSelect, matchWinnerSelect].forEach(select => {
-      select.innerHTML = '';
-      teams.forEach(team => {
-        const option = document.createElement('option');
-        option.value = team.id;
-        option.textContent = team.name;
-        select.appendChild(option);
-      });
-    });
-  }
+  });
 }
 
-// Admin login modal open/close handlers
-document.getElementById('adminLoginBtn').addEventListener('click', () => {
-  document.getElementById('adminLoginModal').classList.remove('hidden');
-});
-
-document.getElementById('closeAdminModal').addEventListener('click', () => {
-  document.getElementById('adminLoginModal').classList.add('hidden');
-});
-
-// Close modal if clicked outside content
-window.addEventListener('click', (e) => {
-  const modal = document.getElementById('adminLoginModal');
-  if (e.target === modal) {
-    modal.classList.add('hidden');
-  }
-});
-
-// Admin form submission
-document.getElementById('adminForm').addEventListener('submit', e => {
+// ✅ Add Player Form
+const playerForm = document.getElementById('playerForm');
+playerForm?.addEventListener('submit', async e => {
   e.preventDefault();
-  const pass = document.getElementById('adminPassword').value;
-  if (pass === ADMIN_PASS) {
-    isAdmin = true;
-    alert('Logged in as admin!');
-    document.getElementById('adminLoginModal').classList.add('hidden');
-    navigate('adminPanel');
-  } else {
-    alert('Wrong password!');
-  }
-});
-
-// Admin logout button
-document.getElementById('adminLogoutBtn').addEventListener('click', () => {
-  isAdmin = false;
-  alert('Logged out');
-  navigate('home');
-});
-
-// Add player form
-document.getElementById('playerForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const name = document.getElementById('playerName').value.trim();
+  const name = document.getElementById('playerName').value;
   const gender = document.getElementById('gender').value;
   const position = document.getElementById('position').value;
   const teamSelect = document.getElementById('playerTeams');
@@ -113,7 +45,7 @@ document.getElementById('playerForm').addEventListener('submit', async e => {
   const imageFile = document.getElementById('playerImage').files[0];
   if (imageFile) {
     const filePath = `${Date.now()}_${imageFile.name}`;
-    const { error } = await client.storage.from('player-images').upload(filePath, imageFile);
+    const { data, error } = await client.storage.from('player-images').upload(filePath, imageFile);
     if (error) return alert(error.message);
     image_url = client.storage.from('player-images').getPublicUrl(filePath).publicURL;
   }
@@ -121,138 +53,128 @@ document.getElementById('playerForm').addEventListener('submit', async e => {
   const { error } = await client.from('players').insert({ name, gender, position, team_ids, image_url });
   if (error) return alert(error.message);
   alert('Player added successfully');
-  e.target.reset();
+  playerForm.reset();
 });
 
-// Transfer form
-document.getElementById('transferForm').addEventListener('submit', async e => {
+// ✅ Add Transfer
+const transferForm = document.getElementById('transferForm');
+transferForm?.addEventListener('submit', async e => {
   e.preventDefault();
-  const playerName = document.getElementById('transferPlayer').value.trim();
+  const playerName = document.getElementById('transferPlayer').value;
   const newTeamId = document.getElementById('transferNewTeam').value;
   const { data: players } = await client.from('players').select('*').ilike('name', `%${playerName}%`).limit(1);
   if (!players || players.length === 0) return alert('Player not found');
   const player = players[0];
-  const oldTeamId = player.team_ids && player.team_ids.length ? player.team_ids[0] : null;
+  const oldTeamId = player.team_ids.length ? player.team_ids[0] : null;
   const { error: updateError } = await client.from('players').update({ team_ids: [newTeamId] }).eq('id', player.id);
   if (updateError) return alert(updateError.message);
   await client.from('transfers').insert({ player_id: player.id, old_team_id: oldTeamId, new_team_id: newTeamId });
   alert('Transfer successful');
-  e.target.reset();
+  transferForm.reset();
 });
 
-// Match form helper: set UI for sets
-const setsContainer = document.getElementById('setsContainer');
-const addSetBtn = document.getElementById('addSetBtn');
-
-function createSetInput(index) {
-  const div = document.createElement('div');
-  div.classList.add('set-input');
-  div.innerHTML = `
-    <h4>Set ${index + 1}</h4>
-    <label>Winner</label>
-    <select class="setWinner" required></select>
-    <label>Score</label>
-    <input type="text" class="setScore" placeholder="e.g. 25-22" required />
-  `;
-  return div;
-}
-
-async function refreshSetTeams() {
-  const { data: teams } = await client.from('teams').select('*').order('name');
-  document.querySelectorAll('.setWinner').forEach(select => {
-    select.innerHTML = '';
-    teams.forEach(team => {
-      const option = document.createElement('option');
-      option.value = team.id;
-      option.textContent = team.name;
-      select.appendChild(option);
-    });
-  });
-}
-
-// Add first set by default
-function addSet() {
-  const setIndex = setsContainer.children.length;
-  if (setIndex >= 3) return alert('Max 3 sets');
-  const setInput = createSetInput(setIndex);
-  setsContainer.appendChild(setInput);
-  refreshSetTeams();
-}
-
-addSetBtn.addEventListener('click', addSet);
-
-// Initial load 1 set
-addSet();
-
-// Submit match form
-document.getElementById('matchForm').addEventListener('submit', async e => {
+// ✅ Add Match Score
+const matchForm = document.getElementById('matchForm');
+matchForm?.addEventListener('submit', async e => {
   e.preventDefault();
   const teamA = document.getElementById('matchTeamA').value;
   const teamB = document.getElementById('matchTeamB').value;
-  if (teamA === teamB) return alert('Teams A and B cannot be the same.');
+  const setScores = document.getElementById('matchSets').value;
+  const winnerName = document.getElementById('matchWinner').value;
+  const video_url = document.getElementById('matchVideo').value;
 
-  const sets = [];
-  const setWinners = document.querySelectorAll('.setWinner');
-  const setScores = document.querySelectorAll('.setScore');
-  for (let i = 0; i < setWinners.length; i++) {
-    const winner = setWinners[i].value;
-    const score = setScores[i].value.trim();
-    if (!score) return alert(`Score for set ${i + 1} is required.`);
-    sets.push({ winner, score });
-  }
+  const teamLookup = async name => {
+    const { data } = await client.from('teams').select('*').ilike('name', name).limit(1);
+    return data && data[0] ? data[0].id : null;
+  };
 
-  // Validate winner is one of the two teams for each set
-  for (const set of sets) {
-    if (![teamA, teamB].includes(set.winner)) {
-      return alert('Set winner must be either Team A or Team B.');
-    }
-  }
+  const teamAId = await teamLookup(teamA);
+  const teamBId = await teamLookup(teamB);
+  const winnerId = await teamLookup(winnerName);
+  if (!teamAId || !teamBId || !winnerId) return alert('Team(s) not found');
 
-  const matchWinner = document.getElementById('matchWinner').value;
-  if (![teamA, teamB].includes(matchWinner)) {
-    return alert('Match winner must be either Team A or Team B.');
-  }
+  const sets = setScores.split(',').map(s => s.trim());
+  if (sets.length < 2) return alert('At least 2 set scores required');
 
-  const videoURL = document.getElementById('matchVideo').value.trim() || null;
-
-  // Save match in supabase
-  const { error } = await client.from('matches').insert([{ team_a_id: teamA, team_b_id: teamB, sets, winner_id: matchWinner, video_url: videoURL }]);
-  if (error) return alert(error.message);
-
-  alert('Match recorded!');
-  e.target.reset();
-  setsContainer.innerHTML = '';
-  addSet();
+  await client.from('matches').insert({
+    team_a: teamAId,
+    team_b: teamBId,
+    set_scores: sets.join(','),
+    winner: winnerId,
+    video_url
+  });
+  alert('Match recorded');
+  matchForm.reset();
 });
 
-// Render helpers
+// ✅ Add Team
+const teamForm = document.getElementById('teamForm');
+teamForm?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = document.getElementById('teamName').value;
+  const league = document.getElementById('teamLeague').value;
+  const members = document.getElementById('teamMembers').value.split(',').map(x => x.trim());
+
+  let logo_url = null;
+  const logoFile = document.getElementById('teamLogo').files[0];
+  if (logoFile) {
+    const filePath = `${Date.now()}_${logoFile.name}`;
+    const { data, error } = await client.storage.from('team-logos').upload(filePath, logoFile);
+    if (error) return alert(error.message);
+    logo_url = client.storage.from('team-logos').getPublicUrl(filePath).publicURL;
+  }
+
+  const { error } = await client.from('teams').insert({ name, league, logo_url, members });
+  if (error) return alert(error.message);
+  alert('Team added');
+  teamForm.reset();
+});
+
+// 📥 Fetch Homepage Data
+async function fetchLiveHome() {
+  const { data: players } = await client.from('players').select('*').order('created_at', { ascending: false }).limit(5);
+  document.getElementById('newPlayers').innerHTML = players.map(p => `<div class='card'><b>${p.name}</b><br>${p.gender}, ${p.position}</div>`).join('');
+
+  const { data: transfers } = await client.from('transfers').select('*, players(name), new_team:teams(name)').order('transferred_at', { ascending: false }).limit(5);
+  document.getElementById('recentTransfers').innerHTML = transfers.map(t => `<div class='card'>${t.players.name} → ${t.new_team.name}</div>`).join('');
+
+  const { data: matches } = await client.from('matches').select('*, team_a:teams(name), team_b:teams(name), winner:teams(name)').order('played_at', { ascending: false }).limit(5);
+  document.getElementById('matchScores').innerHTML = matches.map(m => `<div class='card'>${m.team_a.name} vs ${m.team_b.name}<br>Sets: ${m.set_scores}<br>Winner: ${m.winner.name}</div>`).join('');
+}
+
+// 🔁 Subscribe to updates
+function subscribeRealtime() {
+  client.channel('public:players').on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, fetchLiveHome).subscribe();
+  client.channel('public:transfers').on('postgres_changes', { event: '*', schema: 'public', table: 'transfers' }, fetchLiveHome).subscribe();
+  client.channel('public:matches').on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, fetchLiveHome).subscribe();
+}
+
+// ✅ Render Players Page
 async function renderPlayersPage() {
-  const container = document.getElementById('allPlayers');
-  const { data: players, error } = await client.from('players').select('*').order('name');
-  if (error) return container.textContent = 'Failed to load players';
-  container.innerHTML = players.map(p => `<div class="card">${p.name} (${p.position})</div>`).join('');
+  const { data: players } = await client.from('players').select('*').order('created_at', { ascending: false });
+  document.getElementById('allPlayers').innerHTML = players.map(p => `<div class='card'><strong>${p.name}</strong><br>${p.gender} • ${p.position}</div>`).join('');
 }
 
+// ✅ Render Teams Page
 async function renderTeamsPage() {
-  const container = document.getElementById('allTeams');
-  const { data: teams, error } = await client.from('teams').select('*').order('name');
-  if (error) return container.textContent = 'Failed to load teams';
-  container.innerHTML = teams.map(t => `<div class="card">${t.name} (${t.league})</div>`).join('');
+  const { data: teams } = await client.from('teams').select('*').order('name');
+  document.getElementById('allTeams').innerHTML = teams.map(t => `<div class='card'><strong>${t.name}</strong><br>League: ${t.league}<br>Members: ${t.members.join(', ')}</div>`).join('');
 }
 
+// ✅ Render Transfers Page
 async function renderTransfersPage() {
-  const container = document.getElementById('allTransfers');
-  const { data: transfers, error } = await client.from('transfers').select('id, player_id, old_team_id, new_team_id').order('id', { ascending: false });
-  if (error) return container.textContent = 'Failed to load transfers';
-  container.innerHTML = transfers.map(t => `<div class="card">Transfer #${t.id}</div>`).join('');
+  const { data: transfers } = await client.from('transfers').select('*, players(name), old_team:teams!transfers_old_team_id_fkey(name), new_team:teams!transfers_new_team_id_fkey(name)').order('transferred_at', { ascending: false });
+  document.getElementById('allTransfers').innerHTML = transfers.map(t => `<div class='card'><strong>${t.players.name}</strong><br>${t.old_team?.name || 'No Team'} → ${t.new_team?.name}</div>`).join('');
 }
 
+// ✅ Render Matches Page
 async function renderMatchesPage() {
-  const container = document.getElementById('allMatches');
-  const { data: matches, error } = await client.from('matches').select('*').order('id', { ascending: false });
-  if (error) return container.textContent = 'Failed to load matches';
-  container.innerHTML = matches.map(m => `<div class="card">Match #${m.id} Winner: ${m.winner_id}</div>`).join('');
+  const { data: matches } = await client.from('matches').select('*, team_a:teams!matches_team_a_fkey(name), team_b:teams!matches_team_b_fkey(name), winner:teams!matches_winner_fkey(name)').order('played_at', { ascending: false });
+  document.getElementById('allMatches').innerHTML = matches.map(m => `<div class='card'><strong>${m.team_a.name}</strong> vs <strong>${m.team_b.name}</strong><br>Sets: ${m.set_scores}<br>Winner: ${m.winner.name}${m.video_url ? `<br><a href='${m.video_url}' target='_blank'>Match Video</a>` : ''}</div>`).join('');
 }
 
-// Initial load
-navigate('home');
+// 🚀 Init on Load
+window.addEventListener('load', () => {
+  fetchLiveHome();
+  subscribeRealtime();
+});
