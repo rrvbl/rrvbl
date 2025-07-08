@@ -82,25 +82,11 @@ form button:hover {
   background-color: #ef6c00;
 }
 
-#adminLoginPanel {
-  position: fixed;
-  top: 70px;
-  right: 20px;
-  background: #fff3e0;
-  padding: 1rem;
-  border-radius: 6px;
-  border: 2px solid #f57c00;
-  box-shadow: 0 2px 10px rgba(245,124,0,0.7);
-  z-index: 1000;
-  width: 260px;
-}
-
 #adminPanel {
-  background: #fff3e0;
-  border: 2px dashed #f57c00;
+  margin-top: 1rem;
   padding: 1rem;
-  margin: 2rem 0;
-  border-radius: 6px;
+  border: 2px dashed #f57c00;
+  background: #fff3e0;
 }
 
 footer {
@@ -108,4 +94,14 @@ footer {
   padding: 2rem;
   color: #aaa;
   font-size: 0.9rem;
+}
+
+.set {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.set input, .set select {
+  flex: 1;
 }
