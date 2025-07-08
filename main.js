@@ -202,4 +202,57 @@ document.getElementById('matchForm').addEventListener('submit', async e => {
   }
 
   // Validate winner is one of the two teams for each set
-  for
+  for (const set of sets) {
+    if (![teamA, teamB].includes(set.winner)) {
+      return alert('Set winner must be either Team A or Team B.');
+    }
+  }
+
+  const matchWinner = document.getElementById('matchWinner').value;
+  if (![teamA, teamB].includes(matchWinner)) {
+    return alert('Match winner must be either Team A or Team B.');
+  }
+
+  const videoURL = document.getElementById('matchVideo').value.trim() || null;
+
+  // Save match in supabase
+  const { error } = await client.from('matches').insert([{ team_a_id: teamA, team_b_id: teamB, sets, winner_id: matchWinner, video_url: videoURL }]);
+  if (error) return alert(error.message);
+
+  alert('Match recorded!');
+  e.target.reset();
+  setsContainer.innerHTML = '';
+  addSet();
+});
+
+// Render helpers
+async function renderPlayersPage() {
+  const container = document.getElementById('allPlayers');
+  const { data: players, error } = await client.from('players').select('*').order('name');
+  if (error) return container.textContent = 'Failed to load players';
+  container.innerHTML = players.map(p => `<div class="card">${p.name} (${p.position})</div>`).join('');
+}
+
+async function renderTeamsPage() {
+  const container = document.getElementById('allTeams');
+  const { data: teams, error } = await client.from('teams').select('*').order('name');
+  if (error) return container.textContent = 'Failed to load teams';
+  container.innerHTML = teams.map(t => `<div class="card">${t.name} (${t.league})</div>`).join('');
+}
+
+async function renderTransfersPage() {
+  const container = document.getElementById('allTransfers');
+  const { data: transfers, error } = await client.from('transfers').select('id, player_id, old_team_id, new_team_id').order('id', { ascending: false });
+  if (error) return container.textContent = 'Failed to load transfers';
+  container.innerHTML = transfers.map(t => `<div class="card">Transfer #${t.id}</div>`).join('');
+}
+
+async function renderMatchesPage() {
+  const container = document.getElementById('allMatches');
+  const { data: matches, error } = await client.from('matches').select('*').order('id', { ascending: false });
+  if (error) return container.textContent = 'Failed to load matches';
+  container.innerHTML = matches.map(m => `<div class="card">Match #${m.id} Winner: ${m.winner_id}</div>`).join('');
+}
+
+// Initial load
+navigate('home');
