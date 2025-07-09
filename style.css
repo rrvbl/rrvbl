@@ -87,3 +87,59 @@ footer {
   color: #aaa;
   font-size: 0.9rem;
 }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0;
+}
+
+nav {
+  background: #333;
+  padding: 10px;
+}
+
+nav button {
+  margin-right: 10px;
+  color: white;
+  background: #555;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+nav button:hover {
+  background: #777;
+}
+
+.page {
+  padding: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.card {
+  background: #f4f4f4;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 0 3px #ccc;
+}
+
+form label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+form input, form select {
+  padding: 6px;
+  width: 200px;
+  margin-left: 8px;
+  margin-bottom: 12px;
+}
+
+form button {
+  padding: 8px 16px;
+  cursor: pointer;
+}
