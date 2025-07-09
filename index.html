@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Volleyball DB</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script defer src="main.js"></script>
 </head>
@@ -18,7 +18,6 @@
     <button onclick="navigate('add')">Add New Item</button>
   </nav>
 
-  <!-- HOME PAGE -->
   <div id="home" class="page">
     <h2>🏐 Latest Players</h2>
     <div id="newPlayers"></div>
@@ -28,31 +27,26 @@
     <div id="matchScores"></div>
   </div>
 
-  <!-- PLAYERS PAGE -->
   <div id="players" class="page hidden">
     <h2>🏐 All Players</h2>
     <div id="allPlayers"></div>
   </div>
 
-  <!-- TEAMS PAGE -->
   <div id="teams" class="page hidden">
     <h2>🏆 Teams</h2>
     <div id="allTeams"></div>
   </div>
 
-  <!-- TRANSFERS PAGE -->
   <div id="transfers" class="page hidden">
     <h2>🔁 All Transfers</h2>
     <div id="allTransfers"></div>
   </div>
 
-  <!-- MATCHES PAGE -->
   <div id="matches" class="page hidden">
     <h2>🎯 Match Results</h2>
     <div id="allMatches"></div>
   </div>
 
-  <!-- ADD NEW ITEM -->
   <div id="add" class="page hidden">
     <h2>➕ Add Player</h2>
     <form id="playerForm">
@@ -70,66 +64,45 @@
         <option>Defensive Specialist</option>
         <option>All Rounder</option>
       </select>
-      <label>2v2 Team (optional)</label>
-      <select id="playerTeams2v2"><option value="">None</option></select>
-      <label>4v4 Team (optional)</label>
-      <select id="playerTeams4v4"><option value="">None</option></select>
-      <label>5v5 Team (optional)</label>
-      <select id="playerTeams5v5"><option value="">None</option></select>
+      <label>2v2 Team</label>
+      <select id="player2v2"><option>Loading...</option></select>
+      <label>4v4 Team</label>
+      <select id="player4v4"><option>Loading...</option></select>
+      <label>5v5 Team</label>
+      <select id="player5v5"><option>Loading...</option></select>
       <input type="file" id="playerImage" accept="image/*" />
       <button>Add Player</button>
+    </form>
+
+    <h2>➕ Add Team</h2>
+    <form id="teamForm">
+      <input id="teamName" placeholder="Team Name" required />
+      <select id="teamLeague">
+        <option>2v2</option>
+        <option>4v4</option>
+        <option>5v5</option>
+      </select>
+      <input type="file" id="teamLogo" accept="image/*" />
+      <button>Add Team</button>
     </form>
 
     <h2>🔁 Transfer Player</h2>
     <form id="transferForm">
       <input id="transferPlayer" placeholder="Player Name" required />
-      <select id="transferNewTeam"></select>
+      <select id="transferNewTeam"><option>Loading...</option></select>
       <button>Submit Transfer</button>
     </form>
 
     <h2>🎯 Add Match Score</h2>
     <form id="matchForm">
-      <label>Team A</label>
-      <select id="matchTeamA"></select>
-      <label>Team B</label>
-      <select id="matchTeamB"></select>
-      <label>Set 1 Winner</label>
-      <select id="set1Winner">
-        <option value="">Select</option>
-        <option value="teamA">Team A</option>
-        <option value="teamB">Team B</option>
-      </select>
-      <input id="set1Score" placeholder="Score e.g. 25-20" />
-      <label>Set 2 Winner</label>
-      <select id="set2Winner">
-        <option value="">Select</option>
-        <option value="teamA">Team A</option>
-        <option value="teamB">Team B</option>
-      </select>
-      <input id="set2Score" placeholder="Score e.g. 22-25" />
-      <label>Set 3 Winner (optional)</label>
-      <select id="set3Winner">
-        <option value="">Select</option>
-        <option value="teamA">Team A</option>
-        <option value="teamB">Team B</option>
-      </select>
-      <input id="set3Score" placeholder="Score e.g. 15-12" />
-      <label>Match Winner</label>
-      <select id="matchWinner"></select>
+      <input id="matchTeamA" placeholder="Team A Name" required />
+      <input id="matchTeamB" placeholder="Team B Name" required />
+      <input id="set1" placeholder="Set 1 Score (e.g. 25-20)" />
+      <input id="set2" placeholder="Set 2 Score" />
+      <input id="set3" placeholder="Set 3 Score" />
+      <input id="matchWinner" placeholder="Winning Team Name" required />
       <input id="matchVideo" placeholder="Video URL (optional)" />
       <button>Record Match</button>
-    </form>
-
-    <h2>🏆 Add Team</h2>
-    <form id="teamForm">
-      <input id="teamName" placeholder="Team Name" required />
-      <select id="teamLeague">
-        <option value="2v2">2v2</option>
-        <option value="4v4">4v4</option>
-        <option value="5v5">5v5</option>
-      </select>
-      <input type="file" id="teamLogo" accept="image/*" />
-      <button>Add Team</button>
     </form>
   </div>
 
