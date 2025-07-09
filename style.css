@@ -13,6 +13,7 @@ nav {
   justify-content: space-around;
   padding: 1rem;
   font-weight: bold;
+  flex-wrap: wrap;
 }
 
 nav button {
@@ -21,6 +22,7 @@ nav button {
   color: white;
   cursor: pointer;
   font-size: 1rem;
+  margin: 0.3rem;
 }
 
 nav button:hover {
@@ -49,7 +51,7 @@ h2 {
   padding: 1rem;
   margin: 0.5rem 0;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 form {
@@ -57,16 +59,19 @@ form {
   padding: 1.5rem;
   border-radius: 10px;
   max-width: 500px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
 
-form input, form select, form textarea {
+form input,
+form select,
+form textarea {
   width: 100%;
   padding: 0.7rem;
   margin-bottom: 1rem;
   border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 1rem;
 }
 
 form button {
@@ -76,6 +81,7 @@ form button {
   padding: 0.7rem 1.2rem;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 1rem;
 }
 
 form button:hover {
